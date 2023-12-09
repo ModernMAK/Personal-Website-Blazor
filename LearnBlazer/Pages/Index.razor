@@ -1,0 +1,13 @@
+﻿@page "/"
+@inject NavigationManager NavManager
+
+<h1>Redirecting you to projects!</h1>
+
+<a href="/projects">Click here if you are not automatically redirected.</a>
+
+@code {
+    protected override void OnInitialized()
+    {
+        NavManager.NavigateTo("/projects"); // This raises an exception caught by blazor; the exception needs to be raised so blazor knows to stop rendering, but it'll freak out the debugger
+    }
+}

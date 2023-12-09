@@ -1,0 +1,88 @@
+﻿@page "/projects/{ProjectName}"
+
+@using LearnBlazer.Data
+@inject ProjectProviderService ProjectService
+@inject BuzzwordProviderService BuzzwordService
+@using Microsoft.AspNetCore.WebUtilities
+
+
+@inject NavigationManager NavManager
+
+
+@* <ProjectHeader></ProjectHeader> *@
+<main role="main">
+    @if(project != null)
+    {
+        <h1>@project.name</h1>
+        <h6>@project.summary</h6>
+        <hr>
+        @if(project.banner != null){
+            <img class="bd-placeholder-img card-img-top" style="object-fit: contain; max-height: 300px;" width="100%" src="@project.banner" alt="Thumbnail">
+            <hr>
+        }
+        else if(project.thumbnail != null)
+        {
+            <img class="bd-placeholder-img card-img-top" style="object-fit: contain; max-height: 300px;" width="100%" src="@project.thumbnail" alt="Thumbnail">
+            <hr>
+        }
+        @if(project.description != null)
+        {
+            @foreach (var line in project.description)
+            {
+                <p>&emsp;@((MarkupString)line)</p>
+            
+            }
+        }
+        else
+        {
+            <p>A description hasn't been written for this project yet.</p>
+        }
+    }
+    else if(project404)
+    {
+        <h1>@ProjectName</h1>
+        <h6>Doesn't Exist!</h6>
+        <hr>
+        <p>Perhaps you took a wrong turn? Try heading back to the <NavLink href="/projects">index</NavLink>.</p>
+    }
+    else
+    {
+        <h1>@ProjectName</h1>
+        <h6>Is Loading...</h6>
+        <hr>
+        <p>Please wait, patiently.</p>
+
+    }
+
+</main>
+<footer class="text-muted py-2">
+    <hr>
+    <div class="d-flex justify-content-center">
+    <div class="btn-group">
+            <NavLink href="@project.repo" class="btn btn-outline-github">GitHub <i class="bi bi-github"></i></NavLink>
+        <a href="/projects/@project.id" class="btn btn-outline-secondary">Back to Top</a>
+        <a href="/projects" class="btn btn-outline-secondary">Back to Projects</a>
+    </div>
+    </div>
+</footer>
+
+@code {
+    private Project project;
+
+    private bool project404 = false;
+
+    [Parameter]
+    public string ProjectName { get; set; }
+
+    bool warnTag;
+
+    protected override async Task OnInitializedAsync()
+    {
+        project = await ProjectService.GetProject(BuzzwordService, ProjectName);
+        project404 = project == null;
+    }
+    protected override async Task OnParametersSetAsync()
+    {
+        await OnInitializedAsync();
+    }
+}

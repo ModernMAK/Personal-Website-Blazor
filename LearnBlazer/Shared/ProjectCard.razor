@@ -1,0 +1,72 @@
+﻿@using LearnBlazer.Data;
+@using System.Diagnostics.CodeAnalysis;
+
+@inject NavigationManager NavManager
+
+<div class="card shadow-sm">
+    @if (Project.description != null && Project.description.Length > 0){
+        <NavLink href="@($"/projects/{Project.id}")">
+            @if (Project.thumbnail != null)
+            {
+                <img class="bd-placeholder-img card-img-top bg-dark" style="object-fit: contain; max-height: 300px;" width="100%" src="@Project.thumbnail" alt="Thumbnail">
+            }
+            else
+            {
+                <svg class="bd-placeholder-img card-img-top" width="100%" height="150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Thumbnail" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#55595c" /><text x="50%" y="50%" fill="#eceeef" dy=".3em" text-anchor="middle">No Thumbnail Given</text></svg>
+            }
+        </NavLink>
+        <NavLink class="card-header h3 bg-secondary text-white" style="text-decoration: none;" href="@($"/projects/{Project.id}")">@Project.name</NavLink>
+    }
+    else{
+        <NavLink @onclick:preventDefault href="@($"/projects/{Project.id}")">
+            @if (Project.thumbnail != null)
+            {
+                <img class="bd-placeholder-img card-img-top bg-dark" style="object-fit: contain; max-height: 300px;" width="100%" src="@Project.thumbnail" alt="Thumbnail">
+            }
+            else
+            {
+                <svg class="bd-placeholder-img card-img-top" width="100%" height="150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Thumbnail" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#55595c" /><text x="50%" y="50%" fill="#eceeef" dy=".3em" text-anchor="middle">No Thumbnail Given</text></svg>
+            }
+        </NavLink>
+        <NavLink @onclick:preventDefault class="card-header h3 bg-secondary text-white" style="text-decoration: none;" href="@($"/projects/{Project.id}")">@Project.name</NavLink>
+    }
+    <div class="card-body">
+        <p class="card-text">@Project.summary</p>
+    </div>
+    @if (Project.buzzwords.Length > 0)
+    {
+        <ul class="list-group list-group-flush">
+            @foreach (var buzzword in Project.buzzwords)
+            {
+
+                <NavLink href="@($"/projects-tagged/{buzzword.SafeName}")" class="list-group-item">
+                    @buzzword.Name
+                    @if (buzzword.Logo.Length > 0)
+                    {
+                        <img src="@buzzword.Logo" alt="@buzzword.Name Logo" style="float:right; max-height:100%; max-width:32px; object-fit: contain;" />
+                    }
+                </NavLink>
+                
+            }
+        </ul>
+    }
+
+    @if ((Project.description != null && Project.description.Length > 0) || Project.repo != null)
+    {
+    <div class="card-footer btn-group">
+            @if (Project.description != null && Project.description.Length > 0)
+        {
+            <NavLink href="@($"/projects/{Project.id}")" class="btn btn-sm btn-outline-primary">Read More</NavLink>
+        }
+        @if (Project.repo != null){
+            <NavLink href="@($"{Project.repo}")" class="btn btn-sm btn-outline-github">GitHub <i class="bi bi-github"></i></NavLink>
+        }
+    </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public Project Project { get; set; }
+
+}

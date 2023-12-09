@@ -1,0 +1,115 @@
+﻿@page "/projects"
+@page "/projects-tagged/{TagName}"
+
+@using LearnBlazer.Data
+@inject ProjectProviderService ProjectService
+@inject BuzzwordProviderService BuzzwordService
+@using Microsoft.AspNetCore.WebUtilities
+
+
+@inject NavigationManager NavManager
+
+
+@* <ProjectHeader></ProjectHeader> *@
+@* <main> *@
+    <section class="py-3 text-center container-fluid">
+        <div class="row">
+            <div class="col-lg-6 col-md-8 mx-auto">
+                <h1 class="fw-light">Marcus Kertesz</h1>
+                <NavLink class="text-muted" href="mailto: modernmak@hotmail.com">modernmak@hotmail.com</NavLink>
+                <hr>
+                <p class="lead text-muted">A catered list of some of the projects I've worked on.</p>
+            </div>
+        </div>
+    </section>
+
+    <div class="album py-5 bg-light">
+        <div class="container-fluid">
+            @if(tag != null)
+            {
+                <div class="alert alert-secondary h2" role="alert">
+                    @tag.Name
+                    @if(tag.Logo != null)
+                    {
+                        <img src="@tag.Logo" alt="@tag.Name Logo" style="max-height:1.4em; object-fit: contain; float:right;" />
+                    }
+
+                </div>
+                @if (warnTag)
+                {
+                    <div class="alert alert-warning" role="alert">The tag '@tag.Name' does not exist!</div>
+                }
+                @if (projects != null && projects.Length == 0)
+                {
+                    <div class="alert alert-warning" role="alert">No projects found with '@tag.Name' tag!</div>
+                }
+            }
+
+            <div class="row g-3">
+
+                @if (projects == null)
+                {
+                    <p><em>Loading...</em></p>
+                }
+                else
+                {
+                    @foreach (var project in projects)
+                    {
+                    <div class="col col-sm-12 col-md-6 col-lg-3  mb-1">
+                            <ProjectCard Project=@project></ProjectCard>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+
+@* </main> *@
+
+<footer class="text-muted py-5">
+    <div class="d-flex justify-content-center">
+        <div class="btn-group">
+            <NavLink href="https://github.com/ModernMAK" class="btn btn-outline-github">GitHub <i class="bi bi-github"></i></NavLink>
+            @if(tag != null)
+            {
+                <a href="/projects" class="btn btn-outline-secondary">Back to Projects</a>
+               
+            }
+
+        </div>
+    </div>
+</footer>
+
+@code {
+    private Project[] projects;
+    private Buzzword tag;
+
+    [Parameter]
+    public string? TagName { get; set; }
+
+    bool warnTag;
+
+    protected override async Task OnInitializedAsync()
+    {
+        warnTag = false;
+        tag = null;
+        if (TagName != null)
+        {
+            tag = await BuzzwordService.TryGetBuzzword(TagName);
+            Console.WriteLine($"tag found: {tag != null}");
+            if (tag == null)
+            {
+                tag = new Buzzword()
+                    {
+                        Name = TagName,
+                    };
+                warnTag = true;
+            }
+        }
+        projects = await ProjectService.GetProjectsWithTag(BuzzwordService, tag);
+    }
+    protected override async Task OnParametersSetAsync()
+    {
+        await OnInitializedAsync();
+    }
+}
